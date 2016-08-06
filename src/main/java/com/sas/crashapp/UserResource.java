@@ -30,6 +30,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getIt(@HeaderParam("email") String email,@HeaderParam("password") String password,@HeaderParam("attorney_id") long attorney_id) {
 		UserManagement userManagement;
+		System.out.println();
     	UserBean userBean;
     	ErrorBean eb;
     	if(email!=null&&password!=null&&attorney_id!=0){
