@@ -6,8 +6,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class IncidentSuccess {
 	int success;
 	long incident_id;
-	String imgUpload;
+	String image_url;
+	String details_url;
 	
+	public String getImage_url() {
+		return image_url;
+	}
+	public void setImage_url(String image_url) {
+		this.image_url = image_url;
+	}
+	public String getDetails_url() {
+		return details_url;
+	}
+	public void setDetails_url(String details_url) {
+		this.details_url = details_url;
+	}
 	public IncidentSuccess(){
 		
 	}
@@ -22,11 +35,5 @@ public class IncidentSuccess {
 	}
 	public void setIncident_id(long incident_id) {
 		this.incident_id = incident_id;
-	}
-	public String getImgUpload() {
-		return imgUpload;
-	}
-	public void setImgUpload(String imgUpload) {
-		this.imgUpload = imgUpload;
 	}
 }

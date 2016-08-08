@@ -12,7 +12,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.sas.crashapp.beans.ErrorBean;
 import com.sas.crashapp.beans.UserBean;
 import com.sas.crashapp.services.UserManagement;
 
@@ -34,7 +33,6 @@ public class UserResource {
 		//Service Object
 		UserManagement userManagement;
     	UserBean userBean;
-    	ErrorBean eb;
     	if(email!=null&&password!=null&&attorney_id!=0){
     		userBean=new UserBean();
     		userManagement =new UserManagement();
@@ -42,15 +40,8 @@ public class UserResource {
         	userBean.setPassword(password);
         	userBean.setAttorney_id(attorney_id);
         	return Response.ok(userManagement.checkLogin(userBean), MediaType.APPLICATION_JSON).build();	
-    	}else{
-    		eb=new ErrorBean();
-    		eb.setSuccess(0);
-    		eb.setError_code(900);
-    		eb.setError_description("Invalid Request");
-    		return Response.ok(eb, MediaType.APPLICATION_JSON).build();
-    		
-    		
-    	}
+    	}else return Response.status(Response.Status.BAD_REQUEST).build();
+
     	
 	}
 	
@@ -64,20 +55,14 @@ public class UserResource {
 	@Path("{user_id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUser(@PathParam("user_id") long user_id){
-		ErrorBean eb;
 		UserManagement user;
 		if(user_id!=0){
 			user=new UserManagement();
 			return Response.ok(user.getUser(user_id),MediaType.APPLICATION_JSON).build();
 			
 			
-		}else{
-			eb=new ErrorBean();
-			eb.setSuccess(0);
-			eb.setError_code(900);
-			eb.setError_description("Invalid Request");
-    		return Response.ok(eb, MediaType.APPLICATION_JSON).build();
-		}
+		}else return Response.status(Response.Status.BAD_REQUEST).build();
+
 		
 	}
 	/*User Details Update Method
@@ -103,18 +88,12 @@ public class UserResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response updateUser(@PathParam("user_id")long user_id,UserBean ub){
 		UserManagement user;
-		ErrorBean eb;
-		if(user_id!=0&&ub.getEmail()!=null&&ub.getFirst_name()!=null&&ub.getLast_name()!=null&&(Long)ub.getPhone()!=null){
+		if(user_id!=0&&ub.getEmail()!=null&&ub.getFirst_name()!=null&&ub.getLast_name()!=null&&ub.getPhone()!=0){
 			ub.setUser_id(user_id);
 			user=new UserManagement();
 			return Response.ok(user.updateUser(ub),MediaType.APPLICATION_JSON).build();
-		}else{
-			eb=new ErrorBean();
-			eb.setSuccess(0);
-			eb.setError_code(900);
-			eb.setError_description("Invalid Request");
-    		return Response.ok(eb, MediaType.APPLICATION_JSON).build();
-		}
+		}else return Response.status(Response.Status.BAD_REQUEST).build();
+
 	}
 	/*User Creation Method
 	Request Type: POST
@@ -139,23 +118,17 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createUser(@HeaderParam("attorney_id") long attorney_id,UserBean ub){
-		ErrorBean eb;
 		UserManagement userManagement;
-		if(ub.getReg_type().equals("signup")&&(Long)attorney_id!=null&&ub.getEmail()!=null&&ub.getFirst_name()!=null&&ub.getLast_name()!=null&&ub.getPassword()!=null&&(Long)ub.getPhone()!=null){
+		if(ub.getReg_type().equals("signup")&&attorney_id!=0&&ub.getEmail()!=null&&ub.getFirst_name()!=null&&ub.getLast_name()!=null&&ub.getPassword()!=null&&ub.getPhone()!=0){
 			ub.setAttorney_id(attorney_id);
 			userManagement =new UserManagement();
 			return Response.ok(userManagement.createUser(ub),MediaType.APPLICATION_JSON).build();
 		}
-		else if(ub.getReg_type().equals("fb")&&(Long)attorney_id!=null&&ub.getEmail()!=null&&ub.getFirst_name()!=null&&ub.getLast_name()!=null){
+		else if(ub.getReg_type().equals("fb")&&attorney_id!=0&&ub.getEmail()!=null&&ub.getFirst_name()!=null&&ub.getLast_name()!=null){
 			ub.setAttorney_id(attorney_id);
 			userManagement =new UserManagement();
 			return Response.ok(userManagement.createUserFB(ub),MediaType.APPLICATION_JSON).build();
-		}else{
-			eb=new ErrorBean();
-			eb.setSuccess(0);
-			eb.setError_code(900);
-			eb.setError_description("Invalid Request");
-    		return Response.ok(eb, MediaType.APPLICATION_JSON).build();
-		}
+		}else return Response.status(Response.Status.BAD_REQUEST).build();
+
 	}
 }

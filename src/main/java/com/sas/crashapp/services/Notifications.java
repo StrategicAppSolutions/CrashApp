@@ -13,7 +13,6 @@ import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import com.sas.crashapp.beans.EmailBean;
 import com.sas.crashapp.beans.ErrorBean;
 import com.sas.crashapp.beans.UserBean;
@@ -35,14 +34,9 @@ public class Notifications {
 			EmailBean email = run.query(con,prop.getProperty("email_details"),resultHandler,user.getUser_id());
 			if(email!=null){
 				mail=new SendMail();
-				if(mail.initialNotify(email)){
-					ErrorBean eb=new ErrorBean();
-					eb.setSuccess(1);
-					eb.setError_description("Email Sent");
-					return eb;
-				}else{
-					return getError(905,"Email Cannot Be Sent");
-				}
+				mail.initialNotify(email);
+				IncidentManagement incidentManagement=new IncidentManagement();
+				return incidentManagement.createIncident(user.getUser_id(),user.getAttorney_id()); 
 			}else{
 				return getError(901,"User Not Registered");
 			}

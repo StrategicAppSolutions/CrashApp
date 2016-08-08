@@ -4,9 +4,10 @@ import java.util.List;
 
 public class IncidentImages {
 	
-	long incident_id;
 	long user_id;
 	long attorney_id;
+	long incident_id;
+	int success;
 	List<Images> images;
 	public long getIncident_id() {
 		return incident_id;
@@ -31,6 +32,12 @@ public class IncidentImages {
 	}
 	public void setImages(List<Images> images) {
 		this.images = images;
+	}
+	public int getSuccess() {
+		return success;
+	}
+	public void setSuccess(int success) {
+		this.success = success;
 	}
 	
 	

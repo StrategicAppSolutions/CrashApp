@@ -22,7 +22,7 @@ import com.sas.crashapp.beans.Witness;
 
 public class IncidentManagement {
 	
-	public Object createIncident(IncidentBean incident){
+	public Object createIncident(long user_id,long attorney_id){
 		Connection con=null;
 		PreparedStatement ps;
 		IncidentSuccess success;
@@ -33,43 +33,30 @@ public class IncidentManagement {
 			con=dbService.getConnection();
 			final String generatedColumns[] = { "INCIDENT_ID" };
 			ps=con.prepareStatement(prop.getProperty("create_incident"),generatedColumns);
-			ps.setLong(1,incident.getAttorney_id());
-			ps.setLong(2,incident.getUser_id());
+			ps.setLong(1,attorney_id);
+			ps.setLong(2,user_id);
 			ps.setDate(3,getDate());
 			ps.setDate(4,getDate());
-			ps.setString(5,incident.getInsurance_company());
-			ps.setString(6,incident.getInsurance_policy());
 			int update=ps.executeUpdate();
 			if(update!=0){
 				ResultSet keys=ps.getGeneratedKeys();
 				keys.next();
-				incident.setIncident_id(keys.getLong(1));
+				long incident_id=keys.getLong(1);
 				ps.close();
 				keys.close();
-				PreparedStatement witness_ps=con.prepareStatement(prop.getProperty("create_witness"));
-				for(Witness witness:incident.getWitness()){
-					witness_ps.setLong(1,incident.getIncident_id());
-					witness_ps.setString(2,witness.getWitness_fname());
-					witness_ps.setString(3,witness.getWitness_lname());
-					witness_ps.setLong(4,witness.getWitness_phone());
-					witness_ps.setString(5,witness.getCall_permission());
-					witness_ps.addBatch();
-				}
-				witness_ps.executeBatch();
-				witness_ps.close();
 				success=new IncidentSuccess();
 				success.setSuccess(1);
-				success.setIncident_id(incident.getIncident_id());
-				success.setImgUpload("/webapi/incidents/upload/"+incident.getIncident_id());
+				success.setIncident_id(incident_id);
+				success.setImage_url("/webapi/incidents/upload/images/"+incident_id);
+				success.setDetails_url("/webapi/incidents/upload/details/"+incident_id);
 				return success;
-			}else
-				return getError(904,"Insert Failed");
-	}catch(SQLException e){
-		e.printStackTrace();
-		return getError(903,"Internal Error");
-	}finally{
-			closeConnections(con);
-		}
+			}else return getError(904,"Insert Failed");
+		}catch(Exception e){
+			e.printStackTrace();
+			return getError(903,"Internal Error");
+		}finally{
+				closeConnections(con);
+			}
 	}
 	
 	public Object insertImages(IncidentImages incidentImages){
@@ -90,53 +77,75 @@ public class IncidentManagement {
 				}
 				ps.executeBatch();
 				ps.close();
-				
-				PreparedStatement incidentps=con.prepareStatement("SELECT * FROM INCIDENTS WHERE INCIDENT_ID=?");
-				incidentps.setLong(1,incidentImages.getIncident_id());
-				ResultSet incidentset=incidentps.executeQuery();
-				IncidentBean incidentBean=new IncidentBean();
-				if(incidentset.next()){
-					incidentBean.setAttorney_id(incidentset.getLong(3));
-					incidentBean.setIncident_id(incidentset.getLong(1));
-					incidentBean.setUser_id(incidentset.getLong(2));
-					incidentBean.setInsurance_company(incidentset.getString(6));
-					incidentBean.setInsurance_policy(incidentset.getString(7));
-				}
-				Images image=new Images();
-				List<Images> imageList=new LinkedList<Images>();
-				PreparedStatement imageps=con.prepareStatement(prop.getProperty("join_images"));
-				imageps.setLong(1,incidentImages.getIncident_id());
-				ResultSet imageset=imageps.executeQuery();
-				while(imageset.next()){
-					image.setImg_url(imageset.getString("RESOURCE_URL"));
-					imageList.add(image);
-					image=new Images();
-				}
-				incidentBean.setImages(imageList);
-				imageps.close();
-				imageset.close();
-				Witness witness=new Witness();
-				List<Witness> witnessList=new LinkedList<Witness>();
-				PreparedStatement witnessps=con.prepareStatement(prop.getProperty("join_witness"));
-				witnessps.setLong(1,incidentImages.getIncident_id());
-				ResultSet witnessset=witnessps.executeQuery();
-				while(witnessset.next()){
-					witness.setWitness_fname(witnessset.getString("WITNESS_FNAME"));
-					witness.setWitness_lname(witnessset.getString("WITNESS_LNAME"));
-					witness.setCall_permission(witnessset.getString("CALL_PERMISSION"));
-					witness.setWitness_phone(witnessset.getLong("WITNESS_PHONE"));
-					witnessList.add(witness);
-				}
-				
-				incidentBean.setSuccess(1);
-				incidentBean.setWitness(witnessList);
-				return incidentBean;
+				incidentImages.setSuccess(1);
+				incidentImages.setImages(getImages(incidentImages.getIncident_id()));
+				return incidentImages;
 	}catch(SQLException e){
 		e.printStackTrace();
 		return getError(903,"Internal Error");
 	}finally{
 			closeConnections(con);
 		}
+	}
+	
+	public Object inserDetails(IncidentBean incident){
+		Connection con=null;
+		DBService dbService;
+		Properties prop=getProperties("dbqueries.properties");
+		try{
+			dbService=new DBService();
+			con=dbService.getConnection();
+			PreparedStatement witness_ps=con.prepareStatement(prop.getProperty("create_witness"));
+			for(Witness witness:incident.getWitness()){
+				witness_ps.setLong(1,incident.getIncident_id());
+				witness_ps.setString(2,witness.getWitness_fname());
+				witness_ps.setString(3,witness.getWitness_lname());
+				witness_ps.setLong(4,witness.getWitness_phone());
+				witness_ps.setString(5,witness.getCall_permission());
+				witness_ps.addBatch();
+			}
+			witness_ps.executeBatch();
+			witness_ps.close();
+			return getError(200,"Success");
+		}catch(SQLException e){
+			e.printStackTrace();
+			return getError(903,"Internal Error");
+		}finally{
+				closeConnections(con);
+			}
+		}
+	
+	private List<Images> getImages(long incident_id){
+		Connection con=null;
+		DBService dbService;
+		Properties prop=getProperties("dbqueries.properties");
+		try{
+			dbService=new DBService();
+			con=dbService.getConnection();
+			PreparedStatement imageps=con.prepareStatement(prop.getProperty("join_images"));
+			imageps.setLong(1,incident_id);
+			ResultSet imageSet=imageps.executeQuery();
+			List<Images> imageList=new LinkedList<Images>();
+			Images image;
+			if(imageSet.next()){
+				image=new Images();
+				image.setImg_url(imageSet.getString("resource_url"));
+				imageList.add(image);
+				while(imageSet.next()){
+					image=new Images();
+					image.setImg_url(imageSet.getString("resource_url"));
+					imageList.add(image);
+				}
+				return imageList;
+			}else{
+				return imageList;
+			}
+			
+			}catch(SQLException ex){
+				return null;
+			}finally{
+				closeConnections(con);
+			}
 	}
 	
 	private ErrorBean getError(int code,String description){
