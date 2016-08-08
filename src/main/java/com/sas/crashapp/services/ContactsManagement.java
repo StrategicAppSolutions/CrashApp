@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.dbutils.DbUtils;
@@ -59,19 +62,34 @@ public class ContactsManagement implements Contacts {
 	
 	@Override
 	public Object getContacts(long user_id) {
-		QueryRunner run;
 		DBService dbService;
 		Connection con=null;
-		Properties prop=getProperties("dbqueries.properties");
 		try{
 			dbService=new DBService();
 			con=dbService.getConnection();
-			run = new QueryRunner();
-			ResultSetHandler<EContactsBean> resultHandler = new BeanHandler<EContactsBean>(EContactsBean.class);
-			System.out.println(prop.getProperty("getContactsList"));
-			System.out.println(prop.getProperty("getUser"));
-			EContactsBean contactsBean = run.query(con,prop.getProperty("getContactsList"),resultHandler,user_id);
-			if(contactsBean!=null){
+			String query="SELECT * FROM EMERGENCY_CONTACTS WHERE USER_ID=?";
+			PreparedStatement ps=con.prepareStatement(query);
+			ps.setLong(1,user_id);
+			ResultSet contactsSet=ps.executeQuery();
+			if(contactsSet.next()){
+				EContactsBean contactsBean=new EContactsBean();
+				Contact contact=new Contact();
+				List<Contact> contactList=new LinkedList<Contact>();
+				contact.setContact_fname(contactsSet.getString("contact_fname"));
+				contact.setContact_lname(contactsSet.getString("contact_lname"));
+				contact.setContact_email(contactsSet.getString("contact_email"));
+				contact.setContact_phone(contactsSet.getLong("contact_phone"));
+				contactList.add(contact);
+				while(contactsSet.next()){
+					contact=new Contact();
+					contact.setContact_fname(contactsSet.getString("contact_fname"));
+					contact.setContact_lname(contactsSet.getString("contact_lname"));
+					contact.setContact_email(contactsSet.getString("contact_email"));
+					contact.setContact_phone(contactsSet.getLong("contact_phone"));
+					contactList.add(contact);
+				}
+				contactsBean.setContacts(contactList);
+				contactsBean.setUser_id(user_id);
 				contactsBean.setSuccess(1);
 				return contactsBean;
 			}else{
@@ -81,7 +99,6 @@ public class ContactsManagement implements Contacts {
 			e.printStackTrace();
 			//logger.error("checkLogin SQL Exception Error " +e.getMessage());
 			return getError(903,"Internal Error");
-			
 		}finally{
 			closeConnections(con);
 		}
