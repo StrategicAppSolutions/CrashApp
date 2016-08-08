@@ -68,8 +68,9 @@ public class ContactsManagement implements Contacts {
 			con=dbService.getConnection();
 			run = new QueryRunner();
 			ResultSetHandler<EContactsBean> resultHandler = new BeanHandler<EContactsBean>(EContactsBean.class);
-			System.out.println(prop.getProperty("getContacts"));
-			EContactsBean contactsBean = run.query(con,prop.getProperty("getContacts"),resultHandler,user_id);
+			System.out.println(prop.getProperty("getContactsList"));
+			System.out.println(prop.getProperty("getUser"));
+			EContactsBean contactsBean = run.query(con,prop.getProperty("getContactsList"),resultHandler,user_id);
 			if(contactsBean!=null){
 				contactsBean.setSuccess(1);
 				return contactsBean;
