@@ -24,6 +24,18 @@ import com.sas.crashapp.interfaces.User;
 public class UserManagement implements User {
 	final static Logger logger = LogManager.getLogger(UserManagement.class);
 	
+	/*Method Description
+	checkLogin(UserBean user) - Checks User Authentication
+	createUser(UserBean user) - Creates a new User in the Database
+	createUserFB(UserBean user) - Creates a new User for FaceBook Login
+	updateUser(UserBean user) - Updates User
+	getUser(long user_id) - Returns the details of the User
+	deleteUser(long user_id) - To be Implemented
+	getProperties(String property) - Loads and Return the property file stored in Resources
+	closeConnections(PreparedStatement ps,Connection con) - Close the connection and PrepearedStatment
+	closeConnections(Connection con) - Close the connections
+	getDate() - Returns Current Date
+	*/ 
 	public Object checkLogin(UserBean login){
 		QueryRunner run;
 		DBService dbService;
@@ -34,8 +46,10 @@ public class UserManagement implements User {
 			con=dbService.getConnection();
 			run = new QueryRunner();
 			ResultSetHandler<UserBean> resultHandler = new BeanHandler<UserBean>(UserBean.class);
+			//Check if a user with Email and Attorney_id is existing in database
 			UserBean user = run.query(con,prop.getProperty("checkLogin"),resultHandler,login.getEmail().toLowerCase(),login.getAttorney_id());
 			if(user!=null){
+				//If User Exists Check the Password
 				if(user.getPassword().equals(login.getPassword())){
 					user.setSuccess(1);
 					user.setPassword(null);
@@ -43,9 +57,11 @@ public class UserManagement implements User {
 					user.setCreated_date(null);
 					return user;	
 				}else{
+					//Return Authentication Error - If Passwords are Not Equal
 					return getError(902,"Authentication Error");
 				}
 			}else{
+				//Return User is not Registered
 				return getError(901,"User Not Registered");
 			}
 		}catch(SQLException e){
@@ -67,12 +83,16 @@ public class UserManagement implements User {
 			con=dbService.getConnection();
 			run = new QueryRunner();
 			ResultSetHandler<UserBean> resultHandler = new BeanHandler<UserBean>(UserBean.class);
+			//Query to check if a user with given Email and Attorney_id combination already exists in the database
 			UserBean user = run.query(con,prop.getProperty("checkLogin"),resultHandler,userBean.getEmail().toLowerCase(),userBean.getAttorney_id());
 			if(user!=null){
+				//if a User is Present in Database - Return user is Already Registered
 				return getError(905,"User Already Registered");
 			}else{
+				//if User don't exist Create a new User Entry and Get the User_ID(Auto Generated Key)
 				int update = run.update(con,prop.getProperty("createUser"),userBean.getAttorney_id(),userBean.getEmail().toLowerCase(),userBean.getFirst_name(),userBean.getLast_name(),userBean.getPassword(),userBean.getAddress_l1(),userBean.getAddress_l2(),userBean.getZip_code(),userBean.getCity(),userBean.getState_province(),userBean.getPhone(),userBean.getReg_type(),getDate(),getDate());
 				if(update!=0){
+					//If update is succesfull - Return the userBean
 					user = run.query(con,prop.getProperty("checkLogin"),resultHandler,userBean.getEmail().toLowerCase(),userBean.getAttorney_id());
 					user.setSuccess(1);
 					user.setPassword(null);
@@ -139,15 +159,18 @@ public class UserManagement implements User {
 			con=dbService.getConnection();
 			run = new QueryRunner();
 			ResultSetHandler<UserBean> resultHandler = new BeanHandler<UserBean>(UserBean.class);
+				//Run update query for user with given user_id
 				int update = run.update(con,prop.getProperty("update_user"),userBean.getFirst_name(),userBean.getLast_name(),userBean.getPhone(),userBean.getPassword(),userBean.getAddress_l1(),userBean.getAddress_l2(),userBean.getZip_code(),userBean.getCity(),userBean.getState_province(),getDate(),userBean.getUser_id());
 				System.out.println(update);
 				if(update!=0){
+					//if any row is updated - return our userbean
 					UserBean user = run.query(con,prop.getProperty("getUser"),resultHandler,userBean.getUser_id());
 					user.setSuccess(1);
 					user.setUpdated_date(null);
 					user.setCreated_date(null);
 					return user;
 			}else
+				//if int update==0 i.e. no rows are updated
 					return getError(901,"User Not Registered");
 		}catch(SQLException e){
 			e.printStackTrace();
@@ -167,6 +190,7 @@ public class UserManagement implements User {
 			con=dbService.getConnection();
 			run = new QueryRunner();
 			ResultSetHandler<UserBean> resultHandler = new BeanHandler<UserBean>(UserBean.class);
+			//Select Query to get the user details.
 			UserBean user = run.query(con,prop.getProperty("getUser"),resultHandler,user_id);
 			if(user!=null){
 				user.setSuccess(1);
@@ -187,6 +211,7 @@ public class UserManagement implements User {
 	}
 	
 	private ErrorBean getError(int code,String description){
+		//Generate ErrorBean
 		ErrorBean errorBean=new ErrorBean();
 		errorBean.setError_code(code);
 		errorBean.setError_description(description);
@@ -196,6 +221,7 @@ public class UserManagement implements User {
 	
 	
 	private void closeConnections(PreparedStatement ps,Connection con){
+		//Close Connections
 		try{
 			if(con!=null)
 				con.close();
@@ -207,6 +233,7 @@ public class UserManagement implements User {
 	}
 	
 	private Properties getProperties(String propfile){
+		//Read properties from Resources Folder
 		Properties prop = new Properties();
 		InputStream input = null;
 		try{

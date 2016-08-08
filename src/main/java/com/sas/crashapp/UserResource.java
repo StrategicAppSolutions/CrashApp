@@ -16,19 +16,22 @@ import com.sas.crashapp.beans.ErrorBean;
 import com.sas.crashapp.beans.UserBean;
 import com.sas.crashapp.services.UserManagement;
 
+//User Resource - Handles User Login, User SignUp, User Update, Send Details of User
+
 @Path("user")
 public class UserResource {
 	
-	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public String hello(){
-		return "Hello";
-	}
-		
+	/*User Login Method
+	Request Type: Get
+	Path: /user/login
+	Parameters:
+	Headers: email,password,attorney_id*/
+	
 	@GET
     @Path("login")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getIt(@HeaderParam("email") String email,@HeaderParam("password") String password,@HeaderParam("attorney_id") long attorney_id) {
+		//Service Object
 		UserManagement userManagement;
     	UserBean userBean;
     	ErrorBean eb;
@@ -51,6 +54,12 @@ public class UserResource {
     	
 	}
 	
+	/*Method to Get Details of A user
+	Request Type: Get
+	Path: /user/{user_id}
+	Parameters:
+	Path: user_id*/
+	
 	@GET
 	@Path("{user_id}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -71,6 +80,22 @@ public class UserResource {
 		}
 		
 	}
+	/*User Details Update Method
+	Request Type: PUT
+	Path: /user/update/{user_id}
+	Parameters:
+	Path: user_id
+	JSON Body:
+	String email - Mandatory
+	String first_name - Mandatory
+	String last_name - Mandatory
+	String password - Mandatory for Regular Signup;
+	String address_l1
+	String address_l2
+	long zip_code
+	String city
+	String state_province
+	long phone - Mandatory*/
 	
 	@PUT
 	@Path("update/{user_id}")
@@ -91,6 +116,23 @@ public class UserResource {
     		return Response.ok(eb, MediaType.APPLICATION_JSON).build();
 		}
 	}
+	/*User Creation Method
+	Request Type: POST
+	Path: /user/create
+	Parameters:
+	Header: attorney_id
+	JSON Body:
+	String email - Mandatory
+	String first_name - Mandatory
+	String last_name - Mandatory
+	String password - Mandatory for Regular Signup;
+	String address_l1
+	String address_l2
+	long zip_code
+	String city
+	String state_province
+	long phone - Mandatory
+	String reg_type - Mandatory*/
 	
 	@POST
 	@Path("create")

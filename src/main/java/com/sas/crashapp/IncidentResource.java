@@ -26,9 +26,12 @@ import com.sas.crashapp.beans.IncidentImages;
 import com.sas.crashapp.services.IncidentManagement;
 import com.sas.crashapp.services.S3Upload;
 
+//Incident Resource - Handles the Incident Requests
+
 @Path("incidents")
 public class IncidentResource {
 	
+	//Creates New Incident
 	@POST
 	@Path("create")
 	@Consumes(MediaType.APPLICATION_JSON)
