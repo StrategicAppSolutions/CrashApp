@@ -107,6 +107,7 @@ public class ContactsManagement implements Contacts {
 		}
 		return prop;
 	}
+	
 	private void closeConnections(Connection con){
 		try{
 			if(con!=null)
