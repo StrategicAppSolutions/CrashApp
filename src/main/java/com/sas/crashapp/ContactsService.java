@@ -1,18 +1,19 @@
 package com.sas.crashapp;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import com.sas.crashapp.beans.EContactsBean;
 import com.sas.crashapp.services.ContactsManagement;
 
 @Path("contacts")
-public class ContactsService {
+public class ContactsService{
 
 	@POST
 	@Path("create")
@@ -30,5 +31,16 @@ public class ContactsService {
 		}
 	}
 	
-	
+	@GET
+	@Path("{user_id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getContacts(@PathParam("user_id") long user_id){
+		ContactsManagement contactsManagement;
+		if((Long) user_id!=null){
+			contactsManagement=new ContactsManagement();
+			return Response.ok(contactsManagement.getContacts(user_id),MediaType.APPLICATION_JSON).build();
+		}else{
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+	}
 }

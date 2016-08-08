@@ -17,8 +17,9 @@ import com.sas.crashapp.beans.Contact;
 import com.sas.crashapp.beans.EContactsBean;
 import com.sas.crashapp.beans.ErrorBean;
 import com.sas.crashapp.beans.UserBean;
+import com.sas.crashapp.interfaces.Contacts;
 
-public class ContactsManagement {
+public class ContactsManagement implements Contacts {
 	
 	public Object createContacts(EContactsBean contactsBean){
 		QueryRunner run;
@@ -56,6 +57,41 @@ public class ContactsManagement {
 		}
 	}
 	
+	@Override
+	public Object getContacts(long user_id) {
+		QueryRunner run;
+		DBService dbService;
+		Connection con=null;
+		Properties prop=getProperties("dbqueries.properties");
+		try{
+			dbService=new DBService();
+			con=dbService.getConnection();
+			run = new QueryRunner();
+			ResultSetHandler<EContactsBean> resultHandler = new BeanHandler<EContactsBean>(EContactsBean.class);
+			System.out.println(prop.getProperty("getContacts"));
+			EContactsBean contactsBean = run.query(con,prop.getProperty("getContacts"),resultHandler,user_id);
+			if(contactsBean!=null){
+				contactsBean.setSuccess(1);
+				return contactsBean;
+			}else{
+				return getError(901,"User Not Registered");
+			}
+		}catch(SQLException e){
+			e.printStackTrace();
+			//logger.error("checkLogin SQL Exception Error " +e.getMessage());
+			return getError(903,"Internal Error");
+			
+		}finally{
+			closeConnections(con);
+		}
+	}
+
+	@Override
+	public Object deleteContacts(long user_id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	private Properties getProperties(String propfile){
 		Properties prop = new Properties();
 		InputStream input = null;
@@ -86,6 +122,7 @@ public class ContactsManagement {
 		errorBean.setSuccess(0);
 		return errorBean;
 	}
+
 	
 
 }
