@@ -95,16 +95,35 @@ public class IncidentManagement {
 		try{
 			dbService=new DBService();
 			con=dbService.getConnection();
+			PreparedStatement insurance_ps=con.prepareStatement(prop.getProperty("insert_insurance"));
+			insurance_ps.setDate(1,getDate());
+			insurance_ps.setString(2,incident.getInsurance_company());
+			insurance_ps.setString(3,incident.getInsurance_policy());
+			insurance_ps.setNull(4,java.sql.Types.VARCHAR);
+			insurance_ps.setNull(5,java.sql.Types.VARCHAR);
+			insurance_ps.setLong(6,incident.getIncident_id());
+			insurance_ps.executeUpdate();
+			insurance_ps.close();
 			PreparedStatement witness_ps=con.prepareStatement(prop.getProperty("create_witness"));
-			for(Witness witness:incident.getWitness()){
+			if(incident.getWitness().size()==0){
 				witness_ps.setLong(1,incident.getIncident_id());
-				witness_ps.setString(2,witness.getWitness_fname());
-				witness_ps.setString(3,witness.getWitness_lname());
-				witness_ps.setLong(4,witness.getWitness_phone());
-				witness_ps.setString(5,witness.getCall_permission());
-				witness_ps.addBatch();
+				witness_ps.setNull(2,java.sql.Types.VARCHAR);
+				witness_ps.setNull(3,java.sql.Types.VARCHAR);
+				witness_ps.setNull(4,java.sql.Types.INTEGER);
+				witness_ps.setNull(5,java.sql.Types.VARCHAR);
+				witness_ps.executeUpdate();
+				
+			}else{
+				for(Witness witness:incident.getWitness()){
+					witness_ps.setLong(1,incident.getIncident_id());
+					witness_ps.setString(2,witness.getWitness_fname());
+					witness_ps.setString(3,witness.getWitness_lname());
+					witness_ps.setLong(4,witness.getWitness_phone());
+					witness_ps.setString(5,witness.getCall_permission());
+					witness_ps.addBatch();
+				}	
+				witness_ps.executeBatch();
 			}
-			witness_ps.executeBatch();
 			witness_ps.close();
 			return getError(200,"Success");
 		}catch(SQLException e){
@@ -140,7 +159,6 @@ public class IncidentManagement {
 			}else{
 				return imageList;
 			}
-			
 			}catch(SQLException ex){
 				return null;
 			}finally{

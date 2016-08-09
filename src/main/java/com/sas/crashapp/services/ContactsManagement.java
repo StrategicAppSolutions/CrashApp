@@ -93,7 +93,7 @@ public class ContactsManagement implements Contacts {
 				contactsBean.setSuccess(1);
 				return contactsBean;
 			}else{
-				return getError(901,"User Not Registered");
+				return getError(901,"No Details Found");
 			}
 		}catch(SQLException e){
 			e.printStackTrace();
