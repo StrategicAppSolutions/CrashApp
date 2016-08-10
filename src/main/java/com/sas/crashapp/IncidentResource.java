@@ -70,6 +70,7 @@ public class IncidentResource {
             final ServletFileUpload fileUpload = new ServletFileUpload(factory);
             imageList=new LinkedList<Images>();
             image=new Images();
+            S3Upload s3;
             try{
                 	final List<FileItem> items = fileUpload.parseRequest(request);
 	                System.out.println(items.size());
@@ -77,7 +78,7 @@ public class IncidentResource {
 	                { 
 	                	Iterator<FileItem> item=items.iterator();
 	                	while(item.hasNext()){
-	                		S3Upload s3 = new S3Upload();
+	                		s3 = new S3Upload();
 	                		s3.fileUploader(item.next());
 	                		image.setImg_url(s3.getPath());
 	                		image.setKey_name(s3.getKey());
