@@ -36,6 +36,7 @@ public class ContactsManagement implements Contacts {
 			ResultSetHandler<UserBean> resultHandler = new BeanHandler<UserBean>(UserBean.class);
 			UserBean user = run.query(con,prop.getProperty("getUserWithAttorneyID"),resultHandler,contactsBean.getUser_id(),contactsBean.getAttorney_id());
 			if(user!=null){
+				deleteContacts(contactsBean.getUser_id());
 				PreparedStatement ps=con.prepareStatement(prop.getProperty("createContactsList"));
 				for(Contact contact:contactsBean.getContacts()){
 					ps.setLong(1,contactsBean.getUser_id());
@@ -105,9 +106,21 @@ public class ContactsManagement implements Contacts {
 	}
 
 	@Override
-	public Object deleteContacts(long user_id) {
-		// TODO Auto-generated method stub
-		return null;
+	public void deleteContacts(long user_id) {
+		DBService dbService;
+		Connection con=null;
+		Properties prop=getProperties("dbqueries.properties");
+		try{
+			dbService=new DBService();
+			con=dbService.getConnection();
+			PreparedStatement delete_ps=con.prepareStatement(prop.getProperty("deleteContacts"));
+			delete_ps.setLong(1,user_id);
+			delete_ps.executeUpdate();
+		}catch(SQLException e){
+			e.printStackTrace();
+		}finally{
+			closeConnections(con);
+		}
 	}
 	
 	private Properties getProperties(String propfile){

@@ -99,8 +99,8 @@ public class IncidentManagement {
 			insurance_ps.setDate(1,getDate());
 			insurance_ps.setString(2,incident.getInsurance_company());
 			insurance_ps.setString(3,incident.getInsurance_policy());
-			insurance_ps.setNull(4,java.sql.Types.VARCHAR);
-			insurance_ps.setNull(5,java.sql.Types.VARCHAR);
+			insurance_ps.setDouble(4,incident.getLat());
+			insurance_ps.setDouble(5,incident.getLng());
 			insurance_ps.setLong(6,incident.getIncident_id());
 			insurance_ps.executeUpdate();
 			insurance_ps.close();

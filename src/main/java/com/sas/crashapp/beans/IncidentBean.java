@@ -10,9 +10,10 @@ public class IncidentBean {
 	long user_id;
 	List<Images> images;
 	List<Witness> witness;
-	
 	String insurance_company;
 	String insurance_policy;
+	double lat;
+	double lng;
 	int success;
 	long incident_id;
 	
@@ -64,6 +65,18 @@ public class IncidentBean {
 	}
 	public void setImages(List<Images> images) {
 		this.images = images;
+	}
+	public double getLat() {
+		return lat;
+	}
+	public void setLat(double lat) {
+		this.lat = lat;
+	}
+	public double getLng() {
+		return lng;
+	}
+	public void setLng(double lng) {
+		this.lng = lng;
 	}
 	
 }
