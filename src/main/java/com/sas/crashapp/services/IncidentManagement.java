@@ -125,7 +125,8 @@ public class IncidentManagement {
 				witness_ps.executeBatch();
 			}
 			witness_ps.close();
-			return getError(200,"Success");
+			incident.setSuccess(1);
+			return incident;
 		}catch(SQLException e){
 			e.printStackTrace();
 			return getError(903,"Internal Error");
