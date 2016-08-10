@@ -156,8 +156,12 @@ public class IncidentManagement {
 					image.setImg_url(imageSet.getString("resource_url"));
 					imageList.add(image);
 				}
+				imageSet.close();
+				imageps.close();
 				return imageList;
 			}else{
+				imageSet.close();
+				imageps.close();
 				return imageList;
 			}
 			}catch(SQLException ex){

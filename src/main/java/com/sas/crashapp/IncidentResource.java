@@ -94,7 +94,6 @@ public class IncidentResource {
 	                	return Response.ok(im.insertImages(incidentImages),MediaType.APPLICATION_JSON).build();
 	                }
                 }catch(Exception e){
-                	
                 	e.printStackTrace();
                 	return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
                 }
